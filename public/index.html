@@ -3,8 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+    <link type="text/css" rel="styleSheet"  href="stylesheets/style.css" />
 </head>
 <body>
-<h1>port 3001</h1>
+<div class="div_left">
+    <iframe name="message" style="display: none"></iframe>
+    <form action="/file/upload_file" method="post" enctype="multipart/form-data" target="message">
+        <input id="select_file" type="file" name="content"/>
+        <input id="upload_file" style="display: none;" type="submit" value="上传文件"/>
+    </form>
+</div>
+
+<ul id="content"></ul>
+
+<script type="text/javascript">
+
+    const xmlHttp = new XMLHttpRequest();
+    xmlHttp.timeout = 3000;
+    xmlHttp.ontimeout = function (event) {
+        alert("请求超时！");
+    };
+    // http://192.168.138.1:3000
+    xmlHttp.open("GET", '/file/get_file_list', true);
+
+    // xmlHttp.setRequestHeader('Content-Type', 'application/json');
+    xmlHttp.send(null);
+
+    let content = $('#content');
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+            if (content.children.length > 0) {
+                content.empty();
+            }
+
+            let json = JSON.parse(xmlHttp.responseText);
+            json.forEach(function (value, index) {
+                let divChild = $('<li></li>');
+                let a = $('<a></a>');
+                divChild.append(a);
+                content.append(divChild);
+
+                a.attr('href', '/' + value);
+                a.text(value);
+            });
+
+        }
+    };
+
+
+
+
+
+    let selectFile = $('#select_file');
+    selectFile.change(function () {
+        // let file = this.files[0];
+        $('#upload_file').click();
+    });
+
+    function uploadSuccess(data) {
+        if (data['status'] === 1) {
+            alert(data['file_name']);
+        }
+    }
+</script>
 </body>
 </html>
